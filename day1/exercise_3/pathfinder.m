@@ -1,22 +1,43 @@
 clear; clc;
 
-% probabilities = 0.25:0.05:0.75;
-% num_iterations = 20;
-% board_size = 20;
-% 
-% result = [];
-% for i = 1:size(probabilities, 2)
-%     sum_positives = 0;
-%     for j = 1:num_iterations
-%         [goal_found, b, goal_path] = find_path(probabilities(i), board_size);
-%         if goal_found
-%             sum_positives = sum_positives + 1;
-%         end
-%     end
-%     p = sum_positives / num_iterations;
-%     result = [result; probabilities(i), p];
-% end
+% probabilites that will be tested
+probabilities = 0.1:0.05:0.9;
+% number of iterations for each probability
+num_iterations = 200;
+% size of the board
+board_size = 20;
 
+% allocate memory for the result
+result = zeros(length(probabilities), 2);
+
+% iterate over all probabilities
+for i = 1:size(probabilities, 2)
+    sum_positives = 0;
+    % iterate over all iterations
+    for j = 1:num_iterations
+        % we only care whether a path was found or not
+        [goal_found, ~, ~] = find_path(probabilities(i), board_size);
+        if goal_found
+            % if a path was found, increment the counter
+            sum_positives = sum_positives + 1;
+        end
+    end
+    % calculate the probability of finding a path
+    p = sum_positives / num_iterations;
+    % store the result
+    result(i,:) = [probabilities(i), p];
+end
+
+% plot the probability of finding a path
+figure
+hold on
+grid on
+plot(result(:,1), result(:,2))
+hold off
+xlim([0 1])
+ylim([0 1])
+
+% find a path with obstacle probability 0.3 and 20x20 board
 [goal_found, b, goal_path] = find_path(0.3, 20);
 board_size = width(b);
 % Plot
@@ -60,7 +81,6 @@ function [goal_found, board, goal_path] = find_path(probability, board_size)
     while numel(frontier) > 0
         node = frontier{1}{1};
         path = frontier{1}{2};
-        explored(node(1), node(2)) = 1;
         frontier(1) = [];
         if node(2) == board_size
             goal_path = [path; node];
@@ -75,6 +95,7 @@ function [goal_found, board, goal_path] = find_path(probability, board_size)
                 new_path = [path; node];
                 new_node = [nb(i), {new_path}];
                 frontier = [frontier, {new_node}];
+                explored(nb{i}(1), nb{i}(2)) = 1;
             end
         end
     end
