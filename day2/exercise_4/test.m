@@ -24,7 +24,7 @@ for i = 1:length(hs)
     % solve using adams bashforth method
     [x2, y2] = adams_bashforth(f, x0, y0, h, x_values);
     
-    figure
+    subplot(2,2,i)
     hold on
     plot(x, y, "Color","black", "LineStyle", "--")
     plot(x2, y2, "Color","black", "LineStyle", "-.")
