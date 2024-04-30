@@ -1,14 +1,14 @@
-%% Uncomment the function you want to test
-% f = @(x, y) -y + 3*cos(3*x)*exp(-x);
-% sol = @(x)sin(3*x).*exp(-x);
-% x0 = 0;
-% y0 = 0;
-
-%%
-f = @(x, y) y;
-sol = @(x)exp(x);
+%% Uncomment the function block you want to test
+f = @(x, y) -y + 3*cos(3*x)*exp(-x);
+sol = @(x)sin(3*x).*exp(-x);
 x0 = 0;
-y0 = 1;
+y0 = 0;
+
+%% Uncomment the function block you want to test
+% f = @(x, y) y;
+% sol = @(x)exp(x);
+% x0 = 0;
+% y0 = 1;
 
 %%
 % initial conditions
@@ -24,7 +24,7 @@ for i = 1:length(hs)
     % solve using adams bashforth method
     [x2, y2] = adams_bashforth(f, x0, y0, h, x_values);
     
-    figure
+    subplot(2,2,i)
     hold on
     plot(x, y, "Color","black", "LineStyle", "--")
     plot(x2, y2, "Color","black", "LineStyle", "-.")
