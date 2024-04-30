@@ -28,6 +28,7 @@ for i = 1:size(probabilities, 2)
     result(i,:) = [probabilities(i), p];
 end
 
+%%
 % plot the probability of finding a path
 figure
 hold on
@@ -36,6 +37,8 @@ plot(result(:,1), result(:,2))
 hold off
 xlim([0 1])
 ylim([0 1])
+xlabel("Obstacle Probability")
+ylabel("Probability of Finding a Path")
 
 % find a path with obstacle probability 0.3 and 20x20 board
 [goal_found, b, goal_path] = find_path(0.3, 20);
