@@ -1,5 +1,12 @@
 function people(db_file, operation, varargin)
-    load(db_file, "db");
+    try 
+        db = load(db_file, "db");
+        db = db.db;
+    catch
+        db = table;
+        db.Name = {};
+        db.Age = {};
+    end
     switch operation
         case 'reset'
             % reset database
@@ -66,5 +73,5 @@ function people(db_file, operation, varargin)
                 end
             end
     end
-    save("db.mat", "db")
+    save(db_file, "db")
 end
