@@ -1,8 +1,8 @@
-numRectangles = 70;
-binWidth = 10;
-binHeight = 200;
-rectangleMaxWidth = 8;
-rectangleMaxHeight = 6;
+numRectangles = 70; % the number of rectangles to pack
+binWidth = 10; % the width of the bin
+binHeight = 200; % the height of the bin, might need to be increased for more rectangles
+rectangleMaxWidth = 8; % the maximum width of a rectangle
+rectangleMaxHeight = 6; % the maximum height of a rectangle
 
 % generate random rectangles
 rectangles = struct('size', {}, 'position', {}, 'color', {});
@@ -12,6 +12,7 @@ for i = 1:numRectangles
     rectangles(i).color = rand(1,3);
 end
 
+% create new figure for the updating plot
 figure;
 ax = axes;
 
@@ -27,6 +28,7 @@ drawRectangles(ax, rectangles, maxHeight, binWidth, binHeight);
 % pause a bit to see the progress better
 pause(0.5)
 
+% repeat until we are stuck
 while numUnsuccessfulSwaps < maxUnsuccessfulSwaps
     % swap two random rectangles in the list
     newRectangles = swapRectangles(rectangles);
@@ -38,10 +40,10 @@ while numUnsuccessfulSwaps < maxUnsuccessfulSwaps
     if newMaxHeight < maxHeight
         rectangles = newRectangles;
         maxHeight = newMaxHeight;
-        numUnsuccessfulSwaps = 0;
-        drawRectangles(ax, rectangles, maxHeight, binWidth, binHeight);
+        numUnsuccessfulSwaps = 0; % reset the counter
+        drawRectangles(ax, rectangles, maxHeight, binWidth, binHeight); % update the plot
     else
-        numUnsuccessfulSwaps = numUnsuccessfulSwaps + 1;
+        numUnsuccessfulSwaps = numUnsuccessfulSwaps + 1; % increase the counter
     end
 end
 
@@ -57,8 +59,9 @@ title(sprintf('Final packing\nMax height: %d', maxHeight))
 
 % function to draw the rectangles / updates figure f
 function drawRectangles(ax, rectangles, maxHeight, binWidth, binHeight)
-cla(ax);
-% axis equal
+cla(ax); % clear the plot
+% axis equal % make the axes equal. This might look bad for a high height to width ratio
+% iterate over the rectangles and draw them
 for i = 1:size(rectangles, 2)
     xCoord = rectangles(i).position(1);
     yCoord = rectangles(i).position(2);
@@ -69,21 +72,20 @@ end
 xlim([0 binWidth])
 ylim([0 binHeight + 10])
 title(['Max height: ', num2str(maxHeight)])
-drawnow
-% pause a bit to see the progress better
-pause(0.5)
+drawnow % update the plot immediately, don't wait for the script to finish
+pause(0.5) % pause a bit to see the progress better
 end
 
 function [rectangles, maxHeight] = packRectangles(rectangles, binWidth, binHeight, autoRotate)
-bin = zeros(binWidth,binHeight);
+bin = zeros(binWidth,binHeight); % initialize the bin with zeros, so it is empty
 maxHeight = 0;
-for i = 1:size(rectangles, 2)
+for i = 1:size(rectangles, 2) % iterate over the rectangles and place them individually
     rect = rectangles(i);
     [bin, rect] = placeRectangle(bin, rect, autoRotate);
     rectangles(i) = rect;
     yCoord = rect.position(2);
     height = rect.size(2);
-    if yCoord + height > maxHeight
+    if yCoord + height > maxHeight % update the max height if needed
         maxHeight = yCoord + height;
     end
 end
