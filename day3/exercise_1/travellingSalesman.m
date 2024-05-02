@@ -8,6 +8,8 @@ cities = createRandomCities(numCities, gridSize, gridSize);
 
 % generate the path and the length of the path
 [path, length] = evaluateGraph(cities);
+initialPath = path;
+initialLength = length;
 
 % create the initial plot
 figure
@@ -44,6 +46,19 @@ while numUnsuccessfulSwaps < maxUnsuccessfulSwaps
         numUnsuccessfulSwaps = numUnsuccessfulSwaps + 1;
     end
 end
+
+figure
+subplot(1, 2, 1)
+plot(initialPath(:, 1), initialPath(:, 2), 'o-')
+xlim([0, gridSize])
+ylim([0, gridSize])
+title(['Initial path length: ', num2str(initialLength)])
+
+subplot(1, 2, 2)
+plot(path(:, 1), path(:, 2), 'o-')
+xlim([0, gridSize])
+ylim([0, gridSize])
+title(['Final path length: ', num2str(length)])
 
 function newPath = randomSwap(oldPath)
 % copy the old path to the new path
