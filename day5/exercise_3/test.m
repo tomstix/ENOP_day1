@@ -2,27 +2,31 @@ clear;
 
 eps = 1e-3;
 
-selected_function = 1;
+selected_function = 2;
 switch selected_function
     case 1
         fn = @(x,y) 2*x.^2 + 3*y.^2 - 3.*x.*y + x;
         x = [5, 8];
         lim = [-2, 8];
         exactMin = [0, 0];
+        viewSettings = [-37.5, 50];
     case 2
         fn = @(x,y) (1-x).^2 + 5*(x-y.^2).^2;
         x = [0, 0];
         lim = [-0.5, 1.5];
         exactMin = [1, 1];
+        viewSettings = [-60, 45];
     case 3
         fn = @(x,y) (x+2.*y) .* exp(1-0.9.*exp(-0.3.*(x-2.5).^2 - 2.*(y-3.5).^2)) .* (1-0.9.*exp(-(x-3).^2 - (y-3).^2));
         x = [4, 2];
         lim = [1, 5];
         exactMin = [3, 3];
+        viewSettings = [-45, 65];
     case 4
         fn = @(x,y) exp(x/5) + exp(y/3);
         x = [5, 8];
         lim = [-10 10];
+        viewSettings = [-37.5, 30];
 end
 
 figure
@@ -48,6 +52,7 @@ points = x;
 visualizePath(ax2D, points, false);
 visualizePath3D(ax3D, points, fn, false);
 visualizePath3D(axZoom, points, fn, false);
+view(axZoom, viewSettings);
 gridSize = 1;
 iteration_count = 0;
 while gridSize > eps
@@ -63,15 +68,17 @@ while gridSize > eps
     visualizePath3D(ax3D, points, fn, false);
     visualizePath3D(axZoom, points, fn, false);
     
-    if height(points) > 5
-        lookAtPoints = points(end-5:end, :);
+    if height(points) > 8
+        lookAtPoints = points(end-8:end, :);
         lookAtPoints(:,3) = fn(lookAtPoints(:,1), lookAtPoints(:,2));
         xRange = min(1, max(lookAtPoints(:,1)) - min(lookAtPoints(:,1)));
         yRange = min(1, max(lookAtPoints(:,2)) - min(lookAtPoints(:,2)));
         zRange = min(1, max(lookAtPoints(:,3)) - min(lookAtPoints(:,3)));
-        xlim(axZoom, [min(lookAtPoints(:,1)) - xRange, max(lookAtPoints(:,1)) + xRange]);
-        ylim(axZoom, [min(lookAtPoints(:,2)) - yRange, max(lookAtPoints(:,2)) + yRange]);
-        zlim(axZoom, [min(lookAtPoints(:,3)) - zRange, max(lookAtPoints(:,3)) + zRange]);
+        xyRange = max(xRange, yRange);
+        xlim(axZoom, [lookAtPoints(end, 1)-xyRange, lookAtPoints(end, 1)+xyRange]);
+        ylim(axZoom, [lookAtPoints(end, 2)-xyRange, lookAtPoints(end, 2)+xyRange]);
+        zlim(axZoom, [min(min(lookAtPoints(:,3)), 0) - zRange, max(lookAtPoints(:,3)) + zRange]);
+        view(axZoom, viewSettings);
     end
 
     fprintf("Iteration %d: x = %d, y = %d, f = %d, gridSize = %d\n", iteration_count, x(1), x(2), fn(x(1), x(2)), gridSize);
