@@ -2,7 +2,7 @@ clear
 clc
 
 % Variable that decides which function Newton's method is used on
-functionSelect = 2;
+functionSelect = 4;
 % Change the above variable and rerun the program to see Newton's method
 % used on the 4 different functions.
 % Valid values are 1, 2, 3 and 4, which function is which can be seen below
@@ -18,7 +18,7 @@ switch functionSelect
         x_0 = [0 0];
         range = [-0.5 1.5];
     case 3
-        funck = @(x,y) (x + 2*y)*(1 - 0.9*exp(-0.3*(x - 2.5).^2 - 2*(y - 3.5).^2))*(1 - 0.9*exp(-(x - 3).^2 - (y - 3).^2));
+        funck = @(x,y) (x + 2*y).*(1 - 0.9*exp(-0.3*(x - 2.5).^2 - 2*(y - 3.5).^2)).*(1 - 0.9*exp(-(x - 3).^2 - (y - 3).^2));
         x_0 = [4 2];
         range = [1 5];
     case 4
@@ -97,17 +97,18 @@ while gridSize > eps & stepsTaken < maxSteps
         stepsTaken = stepsTaken + 1;
         visualizePath(ax, stepHistory(1:stepsTaken,:), false);
         
+        % Calcuelate the next step location
+        dimDirection = 1;
+        if direction / dim > 1
+            direction = direction - dim;
+            dimDirection = -1;
+        end
+        m = zeros(1, dim);
+        m(direction) = dimDirection;
+
         % Continue in the same direction as long as it gets closer to the
         % minimum
         while stepsTaken < maxSteps
-            % Calcuelate the next step location
-            dimDirection = 1;
-            if direction / dim > 1
-                direction = direction - dim;
-                dimDirection = -1;
-            end
-            m = zeros(1, dim);
-            m(direction) = dimDirection;
             nextStep = stepHistory(stepsTaken,:) + m*gridSize;
 
             % Plot evaluation
@@ -131,7 +132,7 @@ while gridSize > eps & stepsTaken < maxSteps
             end
         end
     end
-end 
+end
 
 % Plot the final path
 visualizePath(ax, stepHistory(1:stepsTaken,:), true);

@@ -2,7 +2,7 @@ clear
 clc
 
 % Variable that decides which function Newton's method is used on
-functionSelect = 2;
+functionSelect = 3;
 % Change the above variable and rerun the program to see Newton's method
 % used on the 4 different functions.
 % Valid values are 1, 2, 3 and 4, which function is which can be seen below

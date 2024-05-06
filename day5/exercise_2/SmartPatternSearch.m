@@ -2,7 +2,7 @@ clear
 clc
 
 % Variable that decides which function Newton's method is used on
-functionSelect = 2;
+functionSelect = 3;
 % Change the above variable and rerun the program to see Newton's method
 % used on the 4 different functions.
 % Valid values are 1, 2, 3 and 4, which function is which can be seen below
@@ -95,17 +95,18 @@ while gridSize > eps & stepsTaken < maxSteps
         stepsTaken = stepsTaken + 1;
         visualizePath(ax, stepHistory(1:stepsTaken,:), false);
         
+        % Calcuelate the next step location
+        dimDirection = 1;
+        if direction / dim > 1
+            direction = direction - dim;
+            dimDirection = -1;
+        end
+        m = zeros(1, dim);
+        m(direction) = dimDirection;
+
         % Continue in the same direction as long as it gets closer to the
         % minimum
         while stepsTaken < maxSteps
-            % Calcuelate the next step location
-            dimDirection = 1;
-            if direction / dim > 1
-                direction = direction - dim;
-                dimDirection = -1;
-            end
-            m = zeros(1, dim);
-            m(direction) = dimDirection;
             nextStep = stepHistory(stepsTaken,:) + m*gridSize;
 
             % Plot evaluation
