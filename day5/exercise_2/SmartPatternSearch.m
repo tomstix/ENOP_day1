@@ -2,7 +2,7 @@ clear
 clc
 
 % Variable that decides which function Newton's method is used on
-functionSelect = 1;
+functionSelect = 2;
 % Change the above variable and rerun the program to see Newton's method
 % used on the 4 different functions.
 % Valid values are 1, 2, 3 and 4, which function is which can be seen below
@@ -14,11 +14,11 @@ switch functionSelect
         x_0 = [5 8];
         range = [-2 8];
     case 2
-        funck = @(x,y) (1 + x).^2 + 5*(x - y.^2);
+        funck = @(x,y) (1 - x).^2 + 5*(x - y.^2).^2;
         x_0 = [0 0];
         range = [-0.5 1.5];
     case 3
-        funck = @(x,y) (x + 2*y)*(1 - 0.9*exp(-0.3*(x - 2.5).^2 - 2*(y - 3.5).^2))*(1 - 0.9*exp(-(x - 3).^2 - (y - 3).^2));
+        funck = @(x,y) (x + 2*y).*(1 - 0.9*exp(-0.3*(x - 2.5).^2 - 2*(y - 3.5).^2)).*(1 - 0.9*exp(-(x - 3).^2 - (y - 3).^2));
         x_0 = [4 2];
         range = [1 5];
     case 4
@@ -97,7 +97,7 @@ while gridSize > eps & stepsTaken < maxSteps
         
         % Continue in the same direction as long as it gets closer to the
         % minimum
-        while 1
+        while stepsTaken < maxSteps
             % Calcuelate the next step location
             dimDirection = 1;
             if direction / dim > 1
