@@ -29,3 +29,5 @@ scatter(d, funck(1, 1, 1, 1, d), 'LineWidth', 1.5, 'MarkerEdgeColor', [0 0 1]);
 scatter(d, funck(parameters(1), parameters(2), parameters(3), parameters(4), d), 'LineWidth', 1.5, 'MarkerEdgeColor', [1 0 0]);
 legend('Data', 'Approximation function (initial)', 'Approximation function (optimized)', 'Location','northeast');
 grid on
+xlabel('{\it t}') 
+ylabel('{\it y}')
