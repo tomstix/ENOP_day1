@@ -8,7 +8,7 @@ max_iterations = 100;
 gridSize = 1;
 
 % select which function to use
-selected_function = 1;
+selected_function = 2;
 switch selected_function
     case 1
         fn = @(x,y) 2*x.^2 + 3*y.^2 - 3.*x.*y + x;
@@ -16,7 +16,7 @@ switch selected_function
         lim = [-2, 8]; % limits
         viewSettings = [-37.5, 50]; % view settings for 3D plot
     case 2
-        fn = @(x,y) (1-x).^2 + 5*(x-y.^2).^2;
+        fn = @(x,y) (1-x).^2 + 5*(y-x.^2).^2;
         x = [0, 0];
         lim = [-0.5, 1.5];
         viewSettings = [-60, 45];

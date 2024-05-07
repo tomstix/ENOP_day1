@@ -14,7 +14,7 @@ switch functionSelect
         x_0 = [5 8];
         range = [-2 8];
     case 2
-        funck = @(x,y) (1 - x).^2 + 5*(x - y.^2).^2;
+        funck = @(x,y) (1 - x).^2 + 5*(y - x.^2).^2;
         x_0 = [0 0];
         range = [-0.5 1.5];
     case 3
