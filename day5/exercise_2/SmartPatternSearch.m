@@ -2,7 +2,7 @@ clear
 clc
 
 % Variable that decides which function Newton's method is used on
-functionSelect = 3;
+functionSelect = 1;
 % Change the above variable and rerun the program to see Newton's method
 % used on the 4 different functions.
 % Valid values are 1, 2, 3 and 4, which function is which can be seen below
@@ -61,24 +61,32 @@ while gridSize > eps & stepsTaken < maxSteps
         bwd = stepHistory(stepsTaken,:) - m*gridSize;
         
         % Evaluate both neighbours in this dimension
-        evaluationsMade = evaluationsMade + 2;
+        % Plot evaluation
+        pl = plot(ax, [stepHistory(stepsTaken, 1), fwd(1)], [stepHistory(stepsTaken, 2), fwd(2)], 'g', 'LineWidth',1);
+        pause(0.05);
+        delete(pl);
         
+        evaluationsMade = evaluationsMade + 1;
         if funck(fwd(1), fwd(2)) < funck(stepHistory(stepsTaken + 1,1), stepHistory(stepsTaken + 1,2))
             stepHistory(stepsTaken + 1,:) = fwd;
             stepHistory(stepsTaken + 2,:) = fwd;
             validNeighbourFound = 1;
             direction = i;
+            continue
         end
+        
         % Plot evaluation
-        pl = plot(ax, [stepHistory(stepsTaken, 1), fwd(1)], [stepHistory(stepsTaken, 2), fwd(2)], 'g', 'LineWidth',1);
+        pl = plot(ax, [stepHistory(stepsTaken, 1), bwd(1)], [stepHistory(stepsTaken, 2), bwd(2)], 'g', 'LineWidth',1);
         pause(0.05);
         delete(pl);
 
+        evaluationsMade = evaluationsMade + 1;
         if funck(bwd(1), bwd(2)) < funck(stepHistory(stepsTaken + 1,1), stepHistory(stepsTaken + 1,2))
             stepHistory(stepsTaken + 1,:) = bwd;
             stepHistory(stepsTaken + 2,:) = bwd;
             validNeighbourFound = 1;
             direction = i + dim;
+            continue
         end
         % Plot evaluation
         pl = plot(ax, [stepHistory(stepsTaken, 1), bwd(1)], [stepHistory(stepsTaken, 2), bwd(2)], 'g', 'LineWidth',1);
