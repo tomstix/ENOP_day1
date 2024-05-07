@@ -2,7 +2,7 @@ clear
 clc
 
 % Variable that decides which function Newton's method is used on
-functionSelect = 4;
+functionSelect = 2;
 % Change the above variable and rerun the program to see Newton's method
 % used on the 4 different functions.
 % Valid values are 1, 2, 3 and 4, which function is which can be seen below
@@ -53,7 +53,7 @@ eps = 1e-6; % This sets the break condition for the optimization
 while gridSize > eps & stepsTaken < maxSteps
     % Check both neighbours in each dimension
     validNeighbourFound = 0;
-    direction = 0;
+    direction = zeros(1, dim);
     for i = 1:dim
         m = zeros(1, dim);
         m(i) = 1;
@@ -61,31 +61,33 @@ while gridSize > eps & stepsTaken < maxSteps
         bwd = stepHistory(stepsTaken,:) - m*gridSize;
         
         % Evaluate both neighbours in this dimension
-        evaluationsMade = evaluationsMade + 1;
-        if funck(fwd(1), fwd(2)) < funck(stepHistory(stepsTaken + 1,1), stepHistory(stepsTaken + 1,2))
-            stepHistory(stepsTaken + 1,:) = fwd;
-            stepHistory(stepsTaken + 2,:) = fwd;
-            validNeighbourFound = 1;
-            direction = i;
-            break
-        end
         % Plot evaluation
         pl = plot(ax, [stepHistory(stepsTaken, 1), fwd(1)], [stepHistory(stepsTaken, 2), fwd(2)], 'g', 'LineWidth',1);
         pause(0.05);
         delete(pl);
         
         evaluationsMade = evaluationsMade + 1;
-        if funck(bwd(1), bwd(2)) < funck(stepHistory(stepsTaken + 1,1), stepHistory(stepsTaken + 1,2))
-            stepHistory(stepsTaken + 1,:) = bwd;
-            stepHistory(stepsTaken + 2,:) = bwd;
+        if funck(fwd(1), fwd(2)) < funck(stepHistory(stepsTaken,1), stepHistory(stepsTaken,2))
+            stepHistory(stepsTaken + 1,:) = stepHistory(stepsTaken + 1,:) + m*gridSize;
+            stepHistory(stepsTaken + 2,:) = stepHistory(stepsTaken + 1,:);
             validNeighbourFound = 1;
-            direction = i + dim;
-            break
+            direction(i) = gridSize;
+            continue
         end
+        
         % Plot evaluation
         pl = plot(ax, [stepHistory(stepsTaken, 1), bwd(1)], [stepHistory(stepsTaken, 2), bwd(2)], 'g', 'LineWidth',1);
         pause(0.05);
         delete(pl);
+
+        evaluationsMade = evaluationsMade + 1;
+        if funck(bwd(1), bwd(2)) < funck(stepHistory(stepsTaken,1), stepHistory(stepsTaken,2))
+            stepHistory(stepsTaken + 1,:) = stepHistory(stepsTaken + 1,:) - m*gridSize;
+            stepHistory(stepsTaken + 2,:) = stepHistory(stepsTaken + 1,:);
+            validNeighbourFound = 1;
+            direction(i) = -gridSize;
+            continue
+        end
     end
     % If no valid neighbour was found, reduce the grid size
     if validNeighbourFound == 0
@@ -96,20 +98,11 @@ while gridSize > eps & stepsTaken < maxSteps
     else
         stepsTaken = stepsTaken + 1;
         visualizePath(ax, stepHistory(1:stepsTaken,:), false);
-        
-        % Calcuelate the next step location
-        dimDirection = 1;
-        if direction / dim > 1
-            direction = direction - dim;
-            dimDirection = -1;
-        end
-        m = zeros(1, dim);
-        m(direction) = dimDirection;
 
         % Continue in the same direction as long as it gets closer to the
         % minimum
         while stepsTaken < maxSteps
-            nextStep = stepHistory(stepsTaken,:) + m*gridSize;
+            nextStep = stepHistory(stepsTaken,:) + direction;
 
             % Plot evaluation
             pl = plot(ax, [stepHistory(stepsTaken, 1), nextStep(1)], [stepHistory(stepsTaken, 2), nextStep(2)], 'g', 'LineWidth',1);
@@ -125,8 +118,8 @@ while gridSize > eps & stepsTaken < maxSteps
             % continue in the same direction
             else
                 stepHistory(stepsTaken + 1,:) = nextStep;
-                stepHistory(stepsTaken + 2,:) = nextStep;
-                
+                stepHistory(stepsTaken + 2,:) = stepHistory(stepsTaken + 1,:);
+
                 stepsTaken = stepsTaken + 1;
                 visualizePath(ax, stepHistory(1:stepsTaken,:), false);
             end
