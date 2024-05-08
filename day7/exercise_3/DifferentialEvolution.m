@@ -9,16 +9,16 @@ functionSelect = 3;
 switch functionSelect
     case 1
         funck = @rosenbrock;
-        n = 2; % Can be 2
+        n = 2; % Can be 2, change this to change the dimension of the function
         range = [-2 2];
     case 2
         funck = @fp;
-        n = 2; % Can be 1 or 2
+        n = 2; % Can be 1 or 2, change this to change the dimension of the function
         range = [-2 2];
     case 3
         %funck = @(x) -20 * exp(-0.2 * sqrt(1 / size(x,2) * sum(x(1:end).^2))) - exp(1 / size(x,2) * sum(cos(2 * pi .* x(1:end)))) + 21;
         funck = @auckley;
-        n = 2; % Can be 1, 2 or 3
+        n = 2; % Can be 1, 2 or 3, change this to change the dimension of the function
         range = [-10 10];
 end
 
@@ -34,11 +34,13 @@ if n == 2
 end
 
 % Algorithm setup
-maxIterations = 100;
+maxIterations = 50 * n;
 iterations = 1;
 F = 0.8;
 CR = 0.9;
 N = 10; % Amount of individuals
+
+% Algorithm initialization
 bestIndividual = zeros(n, 1);
 x = zeros(n,N); % Randomly generated individuals
 for i = 1:N
@@ -63,7 +65,7 @@ for i = 1:N
 end
 
 % Algorithm execution
-while iterations < maxIterations & (improvement > eps || improvement == 0)
+while iterations <= maxIterations && (improvement > eps || improvement == 0)
     for i = 1:N
         % Pick agents
         possibleAgents = 1:N;
@@ -116,20 +118,21 @@ while iterations < maxIterations & (improvement > eps || improvement == 0)
         if iterations > 1
             delete(pl);
         end
-        pl = scatter(x(1,:), x(2,:), 'filled', 'MarkerFaceColor', [1 0 0]);
+        pl = scatter(x(1,:), x(2,:), 'filled', 'MarkerFaceColor', [1 0 0], 'MarkerEdgeColor', [1 0 0]);
         drawnow
         % pause(0.05);
     end
 
-    iterations = iterations + 1;
-
     % Display information
-    disp(['Iteration: ', num2str(iterations), '   CurrentBest: ', num2str(currentBest(1)), ', ', num2str(currentBest(2))]);
+    disp(['Iteration: ', num2str(iterations), '   CurrentBest: ', num2str(currentBest')]);
     disp(['Function Value: ', num2str(funck(currentBest)), '   Improvement: ', num2str(improvement)])
+
+    iterations = iterations + 1;
 end
 
 % Display final information
-hold off
 figure
 plot(1:1:maxIterations, improvementHistory);
+xlabel('Iterations')
+ylabel('Reduction in function value of best individual')
 grid on
