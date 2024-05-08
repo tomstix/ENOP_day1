@@ -6,14 +6,14 @@ lambda_0 = 0.5; % lambda_0 parameter for smart random search
 num_runs = 100; % number of runs for the experiment
 
 % uncomment the following lines to run a single optimization
-% fn = @rosenbrock; % function to optimize
-% lim = [-2 2]; % parameter space limits
-% dim = 2; % dimensionality of the search space
-% f_best = random_search(fn, lim, dim, max_iterations, true);
-% % f_best = smart_random_search(fn, lim, dim, max_iterations, lambda_0, true);
+fn = @rosenbrock; % function to optimize
+lim = [-2 2]; % parameter space limits
+dim = 2; % dimensionality of the search space
+f_best = random_search(fn, lim, dim, max_iterations, true)
+f_best_s = smart_random_search(fn, lim, dim, max_iterations, lambda_0, true)
 
 % or run an experiment to compare the two alogirthms with all the functions
-run_experiment(num_runs, max_iterations, lambda_0);
+% run_experiment(num_runs, max_iterations, lambda_0);
 
 function run_experiment(num_runs, max_iterations, lambda_0)
 for function_select = 1:3
