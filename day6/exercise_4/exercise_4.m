@@ -1,6 +1,6 @@
 clear; clc;
 
-n = 10; % select n here
+n = 20; % select n here
 
 x0 = ones(n,1) * 1/n; % starting point
 
