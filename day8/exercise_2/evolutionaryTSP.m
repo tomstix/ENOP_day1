@@ -27,7 +27,7 @@ p.XDataSource = 'path(:, 1)';
 p.YDataSource = 'path(:, 2)';
 
 % Algorithm setup
-maxIterations = 10;
+maxIterations = 1000;
 iterations = 1;
 N = 20; % Population size
 P = cell(N, 2); % Population
@@ -44,7 +44,7 @@ for i = 1:N
 end
 Np = round(N / 5) * 2; % Parent size
 Pc = 0.8; % Crossover probability
-Pm = 1 / N; % Mutation probability
+Pm = 1 / Np; % Mutation probability
 mutationRate = 1;
 
 % Evaluate population
@@ -56,23 +56,18 @@ while iterations <= maxIterations
 
     % Crossover parents
     for i = 1:N
-        currentParrent = P(mod(i, Np)+1,:);
+        currentParrent = P(mod(i, Np) + 1,:);
         r = rand;
         if r < Pc
-            currentParrent2 = P(mod(i+1, Np)+1,:);
+            currentParrent2 = P(mod(i+(Np/2), Np) + 1,:);
             parrent1Cities = currentParrent{1}(1:numCities,:);
             parrent2Cities = currentParrent2{1}(1:numCities,:);
-            childCities = zeros(numCities, 2);
+            childCities = zeros(numCities * 2, 2);
             cut = randi([round(numCities * 0.25), round(numCities * 0.75)]);
             childCities(1:(cut - 1),:) = parrent1Cities(1:(cut - 1),:);
-            for j = cut:numCities
-                for k = 2:numCities
-                    if ~ismember(parrent2Cities(k,:), childCities(1:j-1,:), "rows")
-                        childCities(j,:) = parrent2Cities(k,:);
-                        break
-                    end
-                end
-            end
+            childCities(cut:cut + numCities - 1,:) = parrent2Cities;
+            childCities = unique(childCities, 'rows', 'stable');
+            childCities = childCities(1:numCities,:);
             [childPath, childLength] = evaluateGraph(childCities);
             P_new(i,:) = {childPath, childLength};
         else
@@ -84,13 +79,16 @@ while iterations <= maxIterations
     for i = 1:N
         r = rand;
         if r < Pm
-            for j = 1:mutationRate
-                mutatedCities = randomSwap(P_new{i,1}(1:numCities,:));
-                [mutatedPath, mutatedLenth] = evaluateGraph(mutatedCities);
-                P_new(i,:) = {mutatedPath, mutatedLenth};
-            end
+            mutatedCities = randomSwap(P_new{i,1}(1:numCities,:), mutationRate);
+            [mutatedPath, mutatedLenth] = evaluateGraph(mutatedCities);
+            P_new(i,:) = {mutatedPath, mutatedLenth};
         end
     end
+
+    % Adjust mutation rate
+    numberOfDuplicates = width([P_new{:,2}]) - width(unique([P_new{:,2}]));
+    mutationRate = numberOfDuplicates;
+    Pm = numberOfDuplicates / Np;
 
     % Evaluate population
     P = P_new;
@@ -99,14 +97,15 @@ while iterations <= maxIterations
     iterations = iterations + 1;
 end
 
-function newPath = randomSwap(oldPath)
-% copy the old path to the new path
-newPath = oldPath;
-
-% generate two random indices that are not the first and the last one
-i = randi([2, size(newPath, 1) - 1]);
-j = randi([2, size(newPath, 1) - 1]);
-
-% swap the cities at the two indices
-newPath([i, j], :) = newPath([j, i], :);
+function newPath = randomSwap(oldPath, numberOfSwaps)
+    % copy the old path to the new path
+    newPath = oldPath;
+    for i = 1:numberOfSwaps
+        % generate two random indices that are not the first
+        a = randi([2, size(newPath, 1)]);
+        b = randi([2, size(newPath, 1)]);
+        
+        % swap the cities at the two indices
+        newPath([a, b], :) = newPath([b, a], :);
+    end
 end
