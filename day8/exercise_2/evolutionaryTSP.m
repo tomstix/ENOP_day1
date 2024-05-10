@@ -1,5 +1,6 @@
 clear
 clc
+close all
 
 % this variable is used to set the number of cities
 numCities = 50;
@@ -14,22 +15,10 @@ cities = [randi(gridSize, numCities, 1), randi(gridSize, numCities, 1)];
 initialPath = path;
 initialLength = length;
 
-% create the initial plot
-figure
-p = plot(path(:, 1), path(:, 2), 'o-');
-% store gca so we can change the title later
-ha = gca;
-xlim([0, gridSize])
-ylim([0, gridSize])
-title(['Path length: ', num2str(length)])
-% set the data sources for the plot so we can update the plot later
-p.XDataSource = 'path(:, 1)';
-p.YDataSource = 'path(:, 2)';
-
 % Algorithm setup
 maxIterations = 1000;
 iterations = 1;
-N = 20; % Population size
+N = 100; % Population size
 P = cell(N, 2); % Population
 for i = 1:N
     cityOrder = randperm(numCities);
@@ -45,10 +34,21 @@ end
 Np = round(N / 5) * 2; % Parent size
 Pc = 0.8; % Crossover probability
 Pm = 1 / Np; % Mutation probability
-mutationRate = 1;
 
 % Evaluate population
 P = sortrows(P, 2);
+
+% create the initial plot
+figure
+p = plot(path(:, 1), path(:, 2), 'o-');
+% store gca so we can change the title later
+ha = gca;
+xlim([0, gridSize])
+ylim([0, gridSize])
+title(['Path length: ', num2str(length)])
+% set the data sources for the plot so we can update the plot later
+p.XDataSource = 'P{1,1}(:, 1)';
+p.YDataSource = 'P{1,1}(:, 2)';
 
 % Algorithm execution
 while iterations <= maxIterations
@@ -62,12 +62,10 @@ while iterations <= maxIterations
             currentParrent2 = P(mod(i+(Np/2), Np) + 1,:);
             parrent1Cities = currentParrent{1}(1:numCities,:);
             parrent2Cities = currentParrent2{1}(1:numCities,:);
-            childCities = zeros(numCities * 2, 2);
-            cut = randi([round(numCities * 0.25), round(numCities * 0.75)]);
-            childCities(1:(cut - 1),:) = parrent1Cities(1:(cut - 1),:);
-            childCities(cut:cut + numCities - 1,:) = parrent2Cities;
+            cut = randi([round(numCities * 0.15), round(numCities * 0.75)]);
+            childCities = parrent1Cities(1:(cut - 1),:);
+            childCities = cat(1, childCities, parrent2Cities);
             childCities = unique(childCities, 'rows', 'stable');
-            childCities = childCities(1:numCities,:);
             [childPath, childLength] = evaluateGraph(childCities);
             P_new(i,:) = {childPath, childLength};
         else
@@ -79,7 +77,7 @@ while iterations <= maxIterations
     for i = 1:N
         r = rand;
         if r < Pm
-            mutatedCities = randomSwap(P_new{i,1}(1:numCities,:), mutationRate);
+            mutatedCities = randomSwap(P_new{i,1}(1:numCities,:));
             [mutatedPath, mutatedLenth] = evaluateGraph(mutatedCities);
             P_new(i,:) = {mutatedPath, mutatedLenth};
         end
@@ -87,8 +85,7 @@ while iterations <= maxIterations
 
     % Adjust mutation rate
     numberOfDuplicates = width([P_new{:,2}]) - width(unique([P_new{:,2}]));
-    mutationRate = numberOfDuplicates;
-    Pm = numberOfDuplicates / Np;
+    Pm = numberOfDuplicates / N;
 
     % Evaluate population
     P = P_new;
@@ -97,15 +94,27 @@ while iterations <= maxIterations
     iterations = iterations + 1;
 end
 
-function newPath = randomSwap(oldPath, numberOfSwaps)
+figure
+subplot(1, 2, 1)
+plot(initialPath(:, 1), initialPath(:, 2), 'o-')
+xlim([0, gridSize])
+ylim([0, gridSize])
+title(['Initial random path length: ', num2str(initialLength)])
+
+subplot(1, 2, 2)
+plot(P{1,1}(:, 1), P{1,1}(:, 2), 'o-')
+xlim([0, gridSize])
+ylim([0, gridSize])
+title(['Final path length: ', num2str(P{1,2})])
+
+function newPath = randomSwap(oldPath)
     % copy the old path to the new path
     newPath = oldPath;
-    for i = 1:numberOfSwaps
-        % generate two random indices that are not the first
-        a = randi([2, size(newPath, 1)]);
-        b = randi([2, size(newPath, 1)]);
+
+    % generate two random indices that are not the first
+    a = randi([2, size(newPath, 1)]);
+    b = randi([2, size(newPath, 1)]);
         
-        % swap the cities at the two indices
-        newPath([a, b], :) = newPath([b, a], :);
-    end
+    % swap the cities at the two indices
+    newPath([a, b], :) = newPath([b, a], :);
 end
