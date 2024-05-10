@@ -1,8 +1,8 @@
 clear; clc;
 
-f = @rosenbrock; % set the function to optimize
+f = @auckley; % set the function to optimize
 dim = 2; % dimensionality of the search space
-lim = [-2, 2]; % parameter space limits
+lim = [-10, 10]; % parameter space limits
 
 num_individuals = 10; % number of individuals
 num_generations = 500; % number of generations
@@ -20,8 +20,7 @@ end
 fga(f, dim, lim, num_individuals, num_generations, pc, pm0, beta, @display_results);
 
 function display_results(k, P, F, pm, evals)
-[f_best, idx] = min(F);
-p_best = P(:,idx);
+f_best = min(F);
 disp(['Generation: ', num2str(k), ', Best fitness: ', num2str(f_best), ', Mutation probability: ', num2str(pm), ', Evaluations: ', num2str(evals)]);
 
 persistent sc;

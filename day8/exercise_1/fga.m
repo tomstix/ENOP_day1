@@ -1,7 +1,8 @@
-function [f_best, p_best, P, pm, evals] = fga(f, dim, lim, num_individuals, num_generations, pc, pm0, beta, dispfun)
+function [f_best, f_hist, p_best, P, pm, evals] = fga(f, dim, lim, num_individuals, num_generations, pc, pm0, beta, dispfun)
 k = 0; % initialize the iteration counter
 evals = 0; % initialize the number of function evaluations
 pm = pm0; % initialize the mutation probability
+f_hist = zeros(1,num_generations); % initialize the history of the best fitness values
 P = initialize_population(num_individuals, dim, lim);
 F = evaluate_population(P, f);
 evals = evals + num_individuals;
@@ -12,9 +13,12 @@ while k < num_generations
     P_new = mutation(P_new,pm,beta,lim);
     P = P_new;
     F = evaluate_population(P, f);
+    f_hist(k) = min(F);
     evals = evals + num_individuals;
     pm = adjust_mutation_rate(P,k,num_generations,pm,pm0);
-    dispfun(k, P, F, pm, evals);
+    if nargin == 9
+        dispfun(k, P, F, pm, evals);
+    end
 end
 [f_best, idx] = min(F);
 p_best = P(:,idx);
