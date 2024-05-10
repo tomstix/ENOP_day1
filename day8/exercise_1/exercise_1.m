@@ -1,11 +1,11 @@
 clear; clc;
 
 f = @auckley; % set the function to optimize
-dim = 2; % dimensionality of the search space
+dim = 3; % dimensionality of the search space
 lim = [-10, 10]; % parameter space limits
 
-num_individuals = 10; % number of individuals
-num_generations = 500; % number of generations
+num_individuals = 100; % number of individuals
+num_generations = 1000; % number of generations
 pc = 0.8; % crossover probability
 pm0 = 0.1; % initial mutation probability
 beta = 3; % mutation parameter

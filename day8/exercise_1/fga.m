@@ -34,7 +34,8 @@ end
 
 function R = selection(P,F)
 N = length(P);
-R = zeros(2,2*N);
+dim = height(P);
+R = zeros(dim,2*N);
 for j = 1:2*N
     c = ceil(N*rand(1,2));
     if F(c(1)) < F(c(2))
@@ -47,7 +48,8 @@ end
 
 function R = crossover(P,pc)
 N = length(P);
-R = zeros(2,N/2);
+dim = height(P);
+R = zeros(dim,N/2);
 for j = 1:N/2
     if rand() < pc
         % intermediate crossover
