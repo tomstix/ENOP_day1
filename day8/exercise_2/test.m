@@ -12,6 +12,10 @@ p_m = 1/num_individuals; % Mutation probability for the evolutionary algorithms
 % Generate random cities
 cities = [randi(grid_size, num_cities, 1), randi(grid_size, num_cities, 1)];
 
+figure
+[~, initial_length] = evaluateGraph(cities);
+plotPath(gca, cities, 1:num_cities, initial_length, grid_size);
+
 % Select which algorithm to run
 % evolutionaryTSP(cities, max_evals, num_individuals, p_c, p_m, true, true, grid_size);
 evolutionaryTSP2(cities, num_individuals, max_evals, p_c, p_m, true, true, grid_size);

@@ -4,12 +4,12 @@ clear; clc; close all;
 num_cities = 20; % Number of cities
 grid_size = 100; % Size of the grid
 
-num_individuals = 50; % Number of individuals for the evolutionary algorithms
+num_individuals = 100; % Number of individuals for the evolutionary algorithms
 max_evals = 500000; % computational budget
 p_c = 0.8; % Crossover probability for the evolutionary algorithms
 p_m = 0.2; % Mutation probability for the evolutionary algorithms
 
-num_runs = 8; % Number of runs to average over
+num_runs = 16; % Number of runs to average over
 
 % Generate random cities that are used for all runs
 cities = [randi(grid_size, num_cities, 1), randi(grid_size, num_cities, 1)];
