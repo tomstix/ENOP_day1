@@ -1,4 +1,4 @@
-function [history, final_P] = evolutionaryTSP2(cities, num_individuals, num_generations, max_evals, p_c, p_m_0, print, plot, grid_size)
+function [history, final_P] = evolutionaryTSP2(cities, num_individuals, max_evals, p_c, p_m_0, print, plot, grid_size)
 if nargin < 7
     print = false;
 end
@@ -17,7 +17,7 @@ end
 P = sortrows(P, 2);
 best_path = P{1, 2};
 
-history = zeros(num_generations, 3);
+history = zeros(max_evals/num_individuals, 3);
 
 if plot
     figure
@@ -26,8 +26,8 @@ if plot
 end
 
 k = 0;
-num_evals = 0;
-while k < num_generations && num_evals < max_evals
+num_evals = num_individuals;
+while num_evals < max_evals
     k = k + 1;
     % choose parents
     parents = selectParents(P);
@@ -55,14 +55,10 @@ while k < num_generations && num_evals < max_evals
     P = sortrows(P, 2);
     
     S = std(cell2mat(P(:, 2)));
-    if k < num_generations/2
-        if S < 100
-            p_m = min(p_m*2, 0.9);
-        else
-            p_m = max(p_m/2, 0.1);
-        end
+    if S < 100
+        p_m = min(p_m*2, 0.9);
     else
-        p_m = p_m_0*(2*(num_generations-k)/num_generations)^2;
+        p_m = max(p_m/2, 0.1);
     end
     
     if P{1, 2} < best_path
@@ -74,6 +70,9 @@ while k < num_generations && num_evals < max_evals
     end
     if print
         fprintf('Generation: %d, Evals: %d, Best path length: %f, p_m: %f, sigma: %f\n', k, num_evals, P{1, 2}, p_m, S);
+    end
+    if k > 1 && num_evals == history(k-1, 2)
+        num_evals = num_evals + 1;
     end
     history(k, :) = [k, num_evals, P{1, 2}];
 end
@@ -98,16 +97,6 @@ for i = 1:width(path) - 1
 end
 % add the distance from the last city back to the first city
 length = length + norm(cities(path(end), :) - cities(path(1), :));
-end
-
-function plotPath(ax, cities, path, length, grid_size)
-cla(ax);
-plot(ax, cities(:, 1), cities(:, 2), 'o');
-hold(ax, 'on');
-plot(ax, cities([path, path(1)], 1), cities([path, path(1)], 2), 'r-');
-xlim(ax, [0, grid_size]);
-ylim(ax, [0, grid_size]);
-title(ax, ['Path length: ', num2str(length)]);
 end
 
 function child = crossover(parent1, parent2)

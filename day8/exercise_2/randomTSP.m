@@ -9,7 +9,7 @@ num_cities = size(cities, 1);
 perm = randperm(num_cities);
 best_path = perm;
 best_length = evaluatePath(cities, best_path);
-history = [];
+history = zeros(max_evals, 3);
 if plot
     figure
     plotPath(gca, cities, best_path, best_length, grid_size);
@@ -23,7 +23,6 @@ while k < max_evals
     if length < best_length
         best_length = length;
         best_path = perm;
-        history = [history; k, k, best_length];
     end
     if plot
         plotPath(gca, cities, best_path, best_length, grid_size);
@@ -32,8 +31,8 @@ while k < max_evals
     if print
         fprintf('Iteration: %d, Best length: %f\n', k, best_length);
     end
+    history(k, :) = [k, k, best_length];
 end
-history = [history; k, k, best_length];
 final_P = cities(best_path, :);
 end
 
