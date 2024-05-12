@@ -1,16 +1,12 @@
-clear; clc; close all;
-
-num_cities = 50;
-grid_size = 100;
-
-num_generations = 10000;
-num_individuals = 10;
-p_c = 0.8;
-p_m_0 = 0.1;
+function [history, final_P] = evolutionaryTSP2(cities, num_individuals, num_generations, max_evals, p_c, p_m_0, print, plot, grid_size)
+if nargin < 7
+    print = false;
+end
+if nargin < 8
+    plot = false;
+end
+num_cities = size(cities, 1);
 p_m = p_m_0;
-
-cities = [randi(grid_size, num_cities, 1), randi(grid_size, num_cities, 1)];
-
 P = initializePopulation(cities, num_individuals);
 for i = 1:num_individuals
     if width(unique(P{i, 1})) ~= num_cities
@@ -20,12 +16,19 @@ for i = 1:num_individuals
 end
 P = sortrows(P, 2);
 best_path = P{1, 2};
-figure
-plotPath(gca, cities, P{1, 1}, P{1, 2}, grid_size);
-drawnow
+
+history = zeros(num_generations, 3);
+
+if plot
+    figure
+    plotPath(gca, cities, P{1, 1}, P{1, 2}, grid_size);
+    drawnow
+end
 
 k = 0;
-while k < num_generations
+num_evals = 0;
+while k < num_generations && num_evals < max_evals
+    k = k + 1;
     % choose parents
     parents = selectParents(P);
     
@@ -36,6 +39,7 @@ while k < num_generations
         if rand < p_c
             P{i, 1} = crossover(parent1, parent2);
             P{i, 2} = evaluatePath(cities, P{i, 1});
+            num_evals = num_evals + 1;
         end
     end
     
@@ -44,25 +48,38 @@ while k < num_generations
         if rand < p_m
             P{i, 1} = randomSwap(P{i, 1});
             P{i, 2} = evaluatePath(cities, P{i, 1});
+            num_evals = num_evals + 1;
         end
     end
-
+    
     P = sortrows(P, 2);
     
     S = std(cell2mat(P(:, 2)));
-    if S < 100
-        p_m = min(p_m*2, 0.9);
+    if k < num_generations/2
+        if S < 100
+            p_m = min(p_m*2, 0.9);
+        else
+            p_m = max(p_m/2, 0.1);
+        end
     else
-        p_m = max(p_m/2, 0.1);
+        p_m = p_m_0*(2*(num_generations-k)/num_generations)^2;
     end
     
     if P{1, 2} < best_path
         best_path = P{1, 2};
-        plotPath(gca, cities, P{1, 1}, P{1, 2}, grid_size);
-        drawnow limitrate;
+        if plot
+            plotPath(gca, cities, P{1, 1}, P{1, 2}, grid_size);
+            drawnow limitrate;
+        end
     end
-    fprintf('Generation: %d, Best path length: %f, p_m: %f, sigma: %f\n', k, P{1, 2}, p_m, S);
-    k = k + 1;
+    if print
+        fprintf('Generation: %d, Evals: %d, Best path length: %f, p_m: %f, sigma: %f\n', k, num_evals, P{1, 2}, p_m, S);
+    end
+    history(k, :) = [k, num_evals, P{1, 2}];
+end
+history = history(1:k, :);
+% order cities according to the best path
+final_P = cities(P{1, 1}, :);
 end
 
 function P = initializePopulation(cities, num_individuals)
