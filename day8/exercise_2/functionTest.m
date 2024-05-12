@@ -17,3 +17,12 @@ Pm = 1 / N; % Mutation probability
 maxEvaluations = 100000; % Max evaluations
 
 [history, bestPath] = evolutionaryTSP(cities, maxEvaluations, N, Pc, Pm);
+
+% create the final plot
+figure
+p = plot(bestPath(:, 1), bestPath(:, 2), 'o-');
+% store gca so we can change the title later
+ha = gca;
+xlim([0, gridSize])
+ylim([0, gridSize])
+title(['Path length: ', num2str(history(end,3))])
