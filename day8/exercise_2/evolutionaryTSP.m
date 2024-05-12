@@ -48,8 +48,8 @@ while evaluations <= maxEvaluations
         r = rand;
         if r < Pc
             currentParrent2 = P(mod(i+(Np/2), Np) + 1,:);
-            parrent1Cities = currentParrent{1}(1:numCities,:);
-            parrent2Cities = currentParrent2{1}(1:numCities,:);
+            parrent1Cities = currentParrent{1}(1:end,:);
+            parrent2Cities = currentParrent2{1}(1:end,:);
             cut = randi([round(numCities * 0.15), round(numCities * 0.75)]);
             childCities = parrent1Cities(1:(cut - 1),:);
             childCities = cat(1, childCities, parrent2Cities);
@@ -66,7 +66,7 @@ while evaluations <= maxEvaluations
     for i = 1:N
         r = rand;
         if r < Pm
-            mutatedCities = randomSwap(P_new{i,1}(1:numCities,:));
+            mutatedCities = randomSwap(P_new{i,1}(1:end,:));
             [mutatedPath, mutatedLenth] = evaluateGraph(mutatedCities);
             evaluations = evaluations + 1;
             P_new(i,:) = {mutatedPath, mutatedLenth};
