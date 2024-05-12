@@ -7,7 +7,7 @@ grid_size = 100; % Size of the grid
 num_individuals = 50; % Number of individuals for the evolutionary algorithms
 max_evals = 500000; % computational budget
 p_c = 0.8; % Crossover probability for the evolutionary algorithms
-p_m = 0.2; % Mutation probability for the evolutionary algorithms
+p_m = 1/num_individuals; % Mutation probability for the evolutionary algorithms
 
 % Generate random cities
 cities = [randi(grid_size, num_cities, 1), randi(grid_size, num_cities, 1)];
