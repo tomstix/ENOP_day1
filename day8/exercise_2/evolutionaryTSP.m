@@ -1,3 +1,4 @@
+% Version 1 of the evolutionary algorithm for the TSP
 function [history, bestPath] = evolutionaryTSP(cities, maxEvaluations, N, Pc, Pm, print, plot, grid_size)
 if nargin < 6
     print = false;
@@ -33,7 +34,7 @@ history(generation,:) = [generation, 1, P{1,2}];
 
 if plot
     figure
-    plotPath_alt(gca, cities, P{1, 1}, P{1, 2}, grid_size);
+    plotPath_alt(gca, P{1, 1}, P{1, 2}, grid_size);
     drawnow
 end
 
@@ -81,7 +82,7 @@ while evaluations <= maxEvaluations
     P = sortrows(P, 2);
     
     if plot
-        plotPath_alt(gca, cities, P{1, 1}, P{1, 2}, grid_size);
+        plotPath_alt(gca, P{1, 1}, P{1, 2}, grid_size);
         drawnow limitrate;
     end
     

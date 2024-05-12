@@ -1,3 +1,4 @@
+% version 2 of the evolutionary algorithm for the TSP
 function [history, final_P] = evolutionaryTSP2(cities, num_individuals, max_evals, p_c, p_m_0, print, plot, grid_size)
 if nargin < 7
     print = false;
@@ -6,15 +7,15 @@ if nargin < 8
     plot = false;
 end
 num_cities = size(cities, 1);
-p_m = p_m_0;
+p_m = p_m_0; % initial mutation probability
 P = initializePopulation(cities, num_individuals);
 for i = 1:num_individuals
-    if width(unique(P{i, 1})) ~= num_cities
+    if width(unique(P{i, 1})) ~= num_cities % check for duplicate cities
         error('Duplicate cities in path');
     end
-    P{i, 2} = evaluatePath(cities, P{i, 1});
+    P{i, 2} = evaluatePath(cities, P{i, 1}); % initial evaluation
 end
-P = sortrows(P, 2);
+P = sortrows(P, 2); % sort population by path length so we have the best path in the first row
 best_path = P{1, 2};
 
 history = zeros(max_evals/num_individuals, 3);
@@ -27,15 +28,18 @@ end
 
 k = 0;
 num_evals = num_individuals;
-while num_evals < max_evals
+% Execute as long as we're within the computational budget
+while num_evals < max_evals 
     k = k + 1;
     % choose parents
     parents = selectParents(P);
     
     % crossover
+    % we don't crossover the best path
     for i = 2:num_individuals
         parent1 = parents{2*i-1};
         parent2 = parents{2*i};
+        % crossover with probability p_c
         if rand < p_c
             P{i, 1} = crossover(parent1, parent2);
             P{i, 2} = evaluatePath(cities, P{i, 1});
@@ -44,7 +48,9 @@ while num_evals < max_evals
     end
     
     % mutation
+    % we don't mutate the best path
     for i = 2:num_individuals
+        % mutate with probability p_m
         if rand < p_m
             P{i, 1} = randomSwap(P{i, 1});
             P{i, 2} = evaluatePath(cities, P{i, 1});
@@ -52,15 +58,19 @@ while num_evals < max_evals
         end
     end
     
+    % sort again
     P = sortrows(P, 2);
     
+    % evaluate the diversity of the population
     S = std(cell2mat(P(:, 2)));
+    % below a certain threshold we increase the mutation probability, above we decrease it
     if S < 100
         p_m = min(p_m*2, 0.9);
     else
         p_m = max(p_m/2, 0.1);
     end
     
+    % update best path
     if P{1, 2} < best_path
         best_path = P{1, 2};
         if plot
@@ -71,6 +81,7 @@ while num_evals < max_evals
     if print
         fprintf('Generation: %d, Evals: %d, Best path length: %f, p_m: %f, sigma: %f\n', k, num_evals, P{1, 2}, p_m, S);
     end
+    % this is necessary because it might happen that we don't evaluate anything, which will mess up the interpolation for the experiments
     if k > 1 && num_evals == history(k-1, 2)
         num_evals = num_evals + 1;
     end
@@ -132,6 +143,7 @@ newPath([i, j]) = newPath([j, i]);
 end
 
 function R = selectParents(P)
+% this works as a tournament selection as described in the lecture
 N = length(P);
 R = cell(N, 1);
 for i = 1:2*N

@@ -1,3 +1,4 @@
+% Function to plot the path. This version uses the city coordinates and the path as a permutation of the city indices
 function plotPath(ax, cities, path, length, grid_size)
 cla(ax);
 plot(ax, cities(:, 1), cities(:, 2), 'o');
