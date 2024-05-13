@@ -30,7 +30,7 @@ plot(x_axis, 0*x_axis, 'LineWidth', 1, 'Color', [0 1 0])
 grid on
 xlim([x_axis(1) x_axis(end)])
 ylim([funck{functionSelect}(0)-(funck{functionSelect}(x_axis(end))*0.1) funck{functionSelect}(x_axis(end))+(funck{functionSelect}(x_axis(end))*0.1)])
-title(sprintf('Iteration: %d   x=%d    f=%d', 0, x_n, funck{functionSelect}(x_n)));
+title(sprintf('Iteration: %d   x=%d    f=%d', 0, x, funck{functionSelect}(x)));
 drawnow
 
 % Newtons sequence
