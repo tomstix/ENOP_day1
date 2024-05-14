@@ -25,6 +25,8 @@ n_elite = 40; % Number of elite individuals
 alpha_s = 1; % Sharing function shape parameter
 d_p_max = 1; % Maximum length of the pareto front
 rand_beta = 2; % Beta for random mutation
+break_history = zeros(1, k_max);
+break_threshold = 0.02; % Threshold for breaking the loop
 pause_time = 0;
 
 rng default
@@ -49,6 +51,9 @@ pl_e.XDataSource = 'F(1,1:n_elite)';
 pl_e.YDataSource = 'F(2,1:n_elite)';
 xlim(plot_limits(1,:));
 ylim(plot_limits(2,:));
+
+nondom_idx = D == 0;
+nondom = X(:,nondom_idx);
 
 % Main loop
 for k = 1:k_max
@@ -101,10 +106,33 @@ for k = 1:k_max
     drawnow limitrate;
     
     fprintf("Iteration %d \t d_k: %f \t sigma_share: %f \t sigma_mate: %f\n", k, d_k, sigma_share, sigma_mate)
+
+    nondom_idx_new = D == 0;
+    nondom_new = X(:,nondom_idx_new);
+    sum_new_d = 0;
+    F_new = fn(nondom_new);
+    F_old = fn(nondom);
+    for i = 1:size(F_new, 2)
+        for j = 1:size(F_old, 2)
+            if all(F_new(:,i) <= F_old(:,j)) && any(F_new(:,i) < F_old(:,j))
+                sum_new_d = sum_new_d + 1;
+                break;
+            end
+        end
+    end
+    p_k = sum_new_d / size(F_new, 2);
+
+    nondom = nondom_new;
+
+    break_history(k) = p_k;
+    if k > 10
+        p_k_avg = mean(break_history(k-10:k));
+        if p_k_avg < break_threshold
+            break;
+        end
+    end
     
     pause(pause_time);
-
-    % rand_beta = rand_beta + rand_beta * (k / k_max);
 end
 
 function d = count_dominated_by(f, set)
