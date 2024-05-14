@@ -7,23 +7,25 @@ switch fn_select
         lim = [0.5, 1.0; -2.0, 2.0; -2.0, 2.0];
         dim = 3;
         m = 2;
+        plot_limits = [0.4, 1; 1, 5];
     case 2
         fn = @ff;
         lim = [-2 * ones(8,1), 2 * ones(8,1)];
         dim = 8;
         m = 2;
+        plot_limits = [0, 1; 0, 1];
 end
 
-p_c = 0.7;
+p_c = 0.9;
 p_m = 0.1;
-mutation_beta = 1;
+mutation_beta = 3;
 sigma_share = 0.5;
 alpha = 1;
 sigma_mate = 3 * sigma_share;
 N = 100;
-n_elite = round(N/3);
+n_elite = round(N * 0.4);
 p_hist = zeros(1, N);
-p_break = 0.1;
+p_break = 0.01;
 
 num_iterations = 200;
 
@@ -47,8 +49,8 @@ pl1.XDataSource = 'F(:,1)';
 pl1.YDataSource = 'F(:,2)';
 pl2.XDataSource = 'E(:,1)';
 pl2.YDataSource = 'E(:,2)';
-xlim([0, 1]);
-ylim([0, 1]);
+xlim(plot_limits(1,:));
+ylim(plot_limits(2,:));
 
 k = 0;
 while k < num_iterations
@@ -74,8 +76,12 @@ while k < num_iterations
     d_min = sqrt(d1^2 + d2^2);
     d_max = d1 + d2;
     d_k = (d_min + d_max) / 2;
-    sigma_share = N^(1/1-m) * d_k/2;
+    sigma_share = N^(1/1-m) * d_k;
     sigma_mate = 3 * sigma_share;
+
+    pll1 = plot([F_x(1), F_z(1)], [F_x(2), F_z(2)], 'g');
+    pll2 = plot([F_y(1), F_z(1)], [F_y(2), F_z(2)], 'g');
+    pll3 = plot([F_x(1), F_y(1)], [F_x(2), F_y(2)], 'g');
     
     parents = parent_selection(P);
     offspring = crossover(parents, p_c, sigma_mate);
@@ -91,13 +97,13 @@ while k < num_iterations
     elite = P(1:n_elite, :);
     F = cell2mat(P(:,2));
     E = cell2mat(elite(:,2));
-    % if mod(k, 5) == 0
-    %     scatter(E(:,1), E(:,2), 20, 'r', 'filled');
-    % end
     title(['Iteration ', num2str(k)]);
     refreshdata
     drawnow limitrate
-    fprintf('Iteration %d, sigma_s: %.4f\n', k, sigma_share);
+    fprintf('Iteration %d, sigma_s: %.4f, d_k = %0.3f\n', k, sigma_share, d_k);
+    delete(pll1);
+    delete(pll2);
+    delete(pll3);
 
     if k < 10
         continue;
@@ -115,12 +121,14 @@ while k < num_iterations
     end
     p = n_dash / length(nondom_idx_new);
     p_hist(k) = p;
-    p_break = mean(p_hist(k-9:k));
-    fprintf('p: %.4f, p_break: %4f\n', p, p_break);
-    if p_break < 0.08
+    p_avg = mean(p_hist(k-9:k));
+    fprintf('p: %.4f, p_avg: %4f\n', p, p_avg);
+    if p_avg < p_break
         break;
     end
     nondoms = nondoms_new;
+
+    fprintf("\n");
 end
 
 function f = evaluate_function(fn, x)
@@ -197,7 +205,7 @@ P = cell2mat(P(:,1));
 D = cell2mat(P_orig(:,4));
 N = height(P);
 for i = 1:2*N
-    c = ceil(N * rand(1, 2));
+    c = randi(N, 1, 2);
     c1_dominated = D(c(1)) > 0;
     c2_dominated = D(c(2)) > 0;
     if c1_dominated == c2_dominated
@@ -246,8 +254,10 @@ for i = 1:N/2
             p2 = P(ceil(N*rand()),:);
         end
         % intermediate crossover
-        alpha = rand();
-        C(i,:) = alpha*p1 + (1-alpha)*p2;
+        for k = 1:dim
+            alpha = rand();
+            C(i,k) = alpha*p1(k) + (1-alpha)*p2(k);
+        end
     else
         % copy one parent
         C(i,:) = p1;
