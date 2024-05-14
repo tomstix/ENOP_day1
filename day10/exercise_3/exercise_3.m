@@ -15,7 +15,7 @@ x(2, :) = [ub(1), lb(2)];
 x(3, :) = ub;
 x(4, :) = [lb(1), ub(2)];
 % add random initial points using LHS
-x(5:N_0, :) = lhsdesign(N_0 - 4, 2);
+x(5:N_0, :) = lhsdesign(N_0 - 4, 2) .* (ub - lb) + lb;
 
 % create delaunay triangulation
 DT = delaunayTriangulation(x(1:N_0, :));
