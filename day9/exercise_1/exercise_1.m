@@ -238,10 +238,12 @@ for i = 1:N/2
     if rand() < p_c
         found = false;
         % search for mate within sigma_mate
+        randp = randperm(N);
         for j = 1:N
+            k = randp(j);
             if i ~= j
-                p2 = P(j,:);
-                f2 = F(j,:);
+                p2 = P(k,:);
+                f2 = F(k,:);
                 d = norm(f1 - f2);
                 if d < sigma_mate && d ~= 0
                     found = true;
