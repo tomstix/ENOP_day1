@@ -1,5 +1,6 @@
-function nDimensionalPlotting(sampleSet)
+function nDimensionalPlotting(sampleSet, gridon)
     n = size(sampleSet, 2); % Dimension of sampleSet
+    N = size(sampleSet, 1); % Amount of samples
     subSpaceCount = (n*(n-1)/2); % Amount of subspaces
     subSpaces = nchoosek(1:n,2); % A matrix containing all the subspaces
     
@@ -16,5 +17,10 @@ function nDimensionalPlotting(sampleSet)
         scatter(sampleSet(:,subSpaces(i,1)), sampleSet(:,subSpaces(i,2)))
         xlabel(['x_{', num2str(subSpaces(i,1)), '}'], 'FontWeight', 'bold')
         ylabel(['x_{', num2str(subSpaces(i,2)), '}'], 'FontWeight', 'bold')
+        if gridon
+            xticks(0:1/N:1);
+            yticks(0:1/N:1);
+            grid on
+        end
     end
 end
