@@ -1,6 +1,6 @@
 clear; clc; close all;
 
-fn_select = 2;
+fn_select = 2; % select the function to optimize
 switch fn_select
     case 1
         fn = @ft;
@@ -27,7 +27,7 @@ d_p_max = 1; % Maximum length of the pareto front
 rand_beta = 2; % Beta for random mutation
 break_history = zeros(1, k_max);
 break_threshold = 0.02; % Threshold for breaking the loop
-pause_time = 0;
+pause_time = 0; % Pause time between iterations for plotting
 
 rng default
 
@@ -58,19 +58,17 @@ nondom = X(:,nondom_idx);
 % Main loop
 for k = 1:k_max
     % find the two points with the biggest distance in F
-    combs = nchoosek(1:N, 2);
+    combs = nchoosek(1:N, 2); % find all combinations of 2 points
     max_dist = 0;
     best_comb = [0, 0];
-    for i = 1:size(combs, 1)
+    for i = 1:size(combs, 1) % iterate through all combinations
         d = norm(F(:, combs(i,1)) - F(:, combs(i,2)));
-        if d > max_dist
+        if d > max_dist % if the distance is bigger than the current max distance, update the max distance and the best combination
             max_dist = d;
             best_comb = combs(i,:);
         end
     end
-    if best_comb == [0, 0]
-        error("No best combination found");
-    end
+    % approximate the length of the pareto front
     F_x = F(:, best_comb(1));
     F_y = F(:, best_comb(2));
     d1 = abs(F_x(2) - F_y(2));
@@ -81,24 +79,27 @@ for k = 1:k_max
     if d_k > d_p_max
         d_p_max = d_k;
     end
+    % update the sharing function parameters
     sigma_share = N^(1/1-m) * d_k;
     sigma_mate = 3 * N^(1/1-m) * d_k;
     
     % Selection
     X_new = crossover(X, F, D, SF, p_c, sigma_mate);
     X_new = mutation(X_new, p_m, lim, rand_beta);
-    X = [X_new, X_elite];
-    F = fn(X);
+    X = [X_new, X_elite]; % Add elite individuals to the population
+    F = fn(X);  % Evaluate the new population
     D = zeros(1, size(X, 2));
     for i = 1:size(X, 2)
-        D(i) = count_dominated_by(F(:,i), F);
+        D(i) = count_dominated_by(F(:,i), F); % count the dominance numbers
     end
-    SF = compute_shared_fitnesses(X, D, sigma_share, alpha_s);
+    SF = compute_shared_fitnesses(X, D, sigma_share, alpha_s); % Compute the shared fitnesses
+    % sort the population by shared fitness
     [~, idx] = sort(SF, "descend");
     X = X(:,idx(1:N));
     F = F(:,idx(1:N));
     D = D(idx(1:N));
     SF = SF(idx(1:N));
+    % select the elite individuals
     X_elite = X(:,1:n_elite);
     % Plot
     refreshdata
@@ -107,11 +108,13 @@ for k = 1:k_max
     
     fprintf("Iteration %d \t d_k: %f \t sigma_share: %f \t sigma_mate: %f\n", k, d_k, sigma_share, sigma_mate)
 
+    % get the new non-dominated solutions
     nondom_idx_new = D == 0;
     nondom_new = X(:,nondom_idx_new);
     sum_new_d = 0;
     F_new = fn(nondom_new);
     F_old = fn(nondom);
+    % count how many new non-dominated solutions dominate the old ones
     for i = 1:size(F_new, 2)
         for j = 1:size(F_old, 2)
             if all(F_new(:,i) <= F_old(:,j)) && any(F_new(:,i) < F_old(:,j))
@@ -120,15 +123,16 @@ for k = 1:k_max
             end
         end
     end
-    p_k = sum_new_d / size(F_new, 2);
+    p_k = sum_new_d / size(F_new, 2); % calculate the ratio
 
     nondom = nondom_new;
 
+    % keep track of the break history to have a moving average
     break_history(k) = p_k;
     if k > 10
         p_k_avg = mean(break_history(k-10:k));
         if p_k_avg < break_threshold
-            break;
+            break; % break if there are almost no new non-dominated solutions
         end
     end
     
@@ -172,7 +176,7 @@ N = size(X, 2);
 X_new = zeros(dim, N);
 for i = 1:N
     % tournament selection for parent 1
-    % select 2 parents randomly
+    % select 2 individuals randomly
     ps = randperm(N, 2);
     p1 = ps(1);
     p2 = ps(2);
@@ -225,6 +229,7 @@ X_new = X;
 for i = 1:N
     for j = 1:dim
         if rand < p_m
+            % for each parameter, generate a random delta with non-uniform distribution
             r = rand;
             if r > 0.5
                 delta_x = (lim(j,2) - X(j,i)) * (2 * (r - 0.5))^beta;
