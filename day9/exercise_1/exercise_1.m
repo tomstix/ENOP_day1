@@ -8,25 +8,27 @@ switch fn_select
         dim = 3;
         m = 2;
         plot_limits = [0.4, 1; 1, 5];
+        ann_pos = [0.8, 0.8, 0.1, 0.1];
     case 2
         fn = @ff;
         lim = [-2 * ones(8,1), 2 * ones(8,1)];
         dim = 8;
         m = 2;
         plot_limits = [0, 1; 0, 1];
+        ann_pos = [0.15, 0.4, 0.1, 0.1];
 end
 
 % Parameters
-N = 100; % Population size
+N = 200; % Population size
 k_max = 200; % Maximum number of iterations
 p_c = 0.8; % Crossover probability
-p_m = 0.3; % Mutation probability
-n_elite = 40; % Number of elite individuals
+p_m = 0.2; % Mutation probability
+n_elite = 80; % Number of elite individuals
 alpha_s = 1; % Sharing function shape parameter
-d_p_max = 1; % Maximum length of the pareto front
+update_sigma_mate = @(sigma_share) 3*sigma_share; % Function to update the mating threshold
 rand_beta = 2; % Beta for random mutation
 break_history = zeros(1, k_max);
-break_threshold = 0.02; % Threshold for breaking the loop
+break_threshold = 0.08; % Threshold for breaking the loop
 pause_time = 0; % Pause time between iterations for plotting
 
 rng default
@@ -51,6 +53,8 @@ pl_e.XDataSource = 'F(1,1:n_elite)';
 pl_e.YDataSource = 'F(2,1:n_elite)';
 xlim(plot_limits(1,:));
 ylim(plot_limits(2,:));
+% make an annotation with N, n_elite, p_c, p_m, alpha_s, rand_beta
+annotation('textbox', ann_pos, 'String', {['N: ', num2str(N)], ['n_{elite}: ', num2str(n_elite)], ['p_c: ', num2str(p_c)], ['p_m: ', num2str(p_m)],  ['\sigma_{mate}: 3*\sigma_{share}'], ['\alpha_s: ', num2str(alpha_s)], ['\beta: ', num2str(rand_beta)]}, 'FitBoxToText', 'on');
 
 nondom_idx = D == 0;
 nondom = X(:,nondom_idx);
@@ -76,12 +80,9 @@ for k = 1:k_max
     d_min = sqrt(d1^2 + d2^2);
     d_max = d1 + d2;
     d_k = (d_min + d_max) / 2;
-    if d_k > d_p_max
-        d_p_max = d_k;
-    end
     % update the sharing function parameters
     sigma_share = N^(1/1-m) * d_k;
-    sigma_mate = 3 * N^(1/1-m) * d_k;
+    sigma_mate = update_sigma_mate(sigma_share);
     
     % Selection
     X_new = crossover(X, F, D, SF, p_c, sigma_mate);
@@ -103,7 +104,7 @@ for k = 1:k_max
     X_elite = X(:,1:n_elite);
     % Plot
     refreshdata
-    title(['Iteration ', num2str(k)]);
+    title(['Iteration ', num2str(k), ' \sigma_{share} = ', num2str(sigma_share), ' \sigma_{mate} = ', num2str(sigma_mate)]);
     drawnow limitrate;
     
     fprintf("Iteration %d \t d_k: %f \t sigma_share: %f \t sigma_mate: %f\n", k, d_k, sigma_share, sigma_mate)
