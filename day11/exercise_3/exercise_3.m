@@ -28,8 +28,9 @@ for N = Ns
     % create uniform grid
     xs = linspace(lim(1), lim(2), points_per_dim);
     ys = linspace(lim(1), lim(2), points_per_dim);
+    [p, q] = meshgrid(xs, ys);
     % create all combinations of grid points
-    combs = combvec(xs, ys);
+    combs = [p(:) q(:)]';
     
     % evaluate function at grid points
     zs = arrayfun(@(i) exercise_3_function(combs(:,i)), 1:size(combs, 2));
