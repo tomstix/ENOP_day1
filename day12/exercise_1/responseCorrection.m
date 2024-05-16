@@ -19,9 +19,10 @@ cunc = @(x) exp(x ./ 3);
 % xlim([xAxis(1) xAxis(end)]);
 % ylim([-2 6]);
 
-% Tangent function and gradient at x^(1)
-[func_, func_grad_x_1] = firstOrderTaylor(func, x_1, 0.1);
-[cunc_, cunc_grad_x_1] = firstOrderTaylor(cunc, x_1, 0.1);
+% Tangent function and gradient at x^(1) using finite differences.
+% could also be done analytically in this case
+[func_, func_grad_x_1] = firstOrderTaylor(func, x_1, 1e-12);
+[cunc_, cunc_grad_x_1] = firstOrderTaylor(cunc, x_1, 1e-12);
 
 % Beta-correlation method
 aunc = @(x) ((func(x_1) / cunc(x_1)) + ((func_grad_x_1 * cunc(x_1) - cunc_grad_x_1 * func(x_1))/cunc(x_1)^2) * (x - x_1));
