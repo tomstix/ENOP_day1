@@ -19,16 +19,16 @@ switch fn_select
 end
 
 % Parameters
-N = 200; % Population size
+N = 100; % Population size
 k_max = 200; % Maximum number of iterations
 p_c = 0.8; % Crossover probability
 p_m = 0.2; % Mutation probability
-n_elite = 80; % Number of elite individuals
+n_elite = 40; % Number of elite individuals
 alpha_s = 1; % Sharing function shape parameter
 update_sigma_mate = @(sigma_share) 3*sigma_share; % Function to update the mating threshold
-rand_beta = 2; % Beta for random mutation
+rand_beta = 1; % Beta for random mutation
 break_history = zeros(1, k_max);
-break_threshold = 0.08; % Threshold for breaking the loop
+break_threshold = 0.02; % Threshold for breaking the loop
 pause_time = 0; % Pause time between iterations for plotting
 
 rng default
@@ -100,8 +100,18 @@ for k = 1:k_max
     F = F(:,idx(1:N));
     D = D(idx(1:N));
     SF = SF(idx(1:N));
-    % select the elite individuals
-    X_elite = X(:,1:n_elite);
+    % select the elite individuals using recurrence mode
+    X_elite = X;
+    while size(X_elite, 2) > n_elite
+        F_e = fn(X_elite);
+        D_e = zeros(1, size(X_elite, 2));
+        for i = 1:size(X_elite, 2)
+            D_e(i) = count_dominated_by(F_e(:,i), F_e);
+        end
+        SF_e = compute_shared_fitnesses(X_elite, D_e, sigma_share, alpha_s);
+        [~, min_idx] = min(SF_e);
+        X_elite(:,min_idx) = [];
+    end
     % Plot
     refreshdata
     title(['Iteration ', num2str(k), ' \sigma_{share} = ', num2str(sigma_share), ' \sigma_{mate} = ', num2str(sigma_mate)]);
@@ -200,7 +210,8 @@ for i = 1:N
         searchperm = randperm(N);
         found = false;
         for j = searchperm
-            if norm(F(:,i) - F(:,j)) < sigma_mate
+            d = norm(F(:,i) - F(:,j));
+            if d ~= 0 && d < sigma_mate
                 pp = j;
                 found = true;
                 break;
