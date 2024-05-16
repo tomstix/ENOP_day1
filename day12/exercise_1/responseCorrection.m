@@ -29,6 +29,7 @@ sunc = @(x) aunc(x).*cunc(x);
 
 % Plot
 figure
+set(gcf, 'Position', [100, 100, 1000, 400]);
 subplot(1, 2, 1)
 plot(xAxis, func(xAxis), "Color", [0 0 1], "LineWidth", 1);
 hold on
