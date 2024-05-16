@@ -50,7 +50,7 @@ for N = Ns
     s = @(x) sum(arrayfun(@(i) lambda(i).*phi_r(norm(x - combs(:,i))), 1:N));
     
     % create test points
-    test_points = (lhsdesign(100, 2) * lim(2))';
+    test_points = (HypercubeSampling(100, 2) * lim(2))';
     
     % evaluate surrogate model and true function at test points
     f_test = arrayfun(@(i) exercise_3_function(test_points(:,i)), 1:size(test_points, 2));
