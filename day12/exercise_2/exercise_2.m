@@ -56,6 +56,7 @@ for c = cs
     end
     % calculate average error for cross-validation
     avg_errors(c == cs) = mean(errors);
+    fprintf("c = %.2f, avg error = %.4f\n", c, avg_errors(c == cs));
 end
 
 % find best c
